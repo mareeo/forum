@@ -1,9 +1,0 @@
-[30-Sep-2014 21:11:12 America/Chicago] PHP Fatal error:  Cannot use Models\Post as Post because the name is already in use in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 7
-[30-Sep-2014 21:11:33 America/Chicago] PHP Fatal error:  Cannot use Models\Post as Post because the name is already in use in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 7
-[30-Sep-2014 21:12:25 America/Chicago] PHP Fatal error:  Call to a member function prepare() on a non-object in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 305
-[30-Sep-2014 21:12:58 America/Chicago] PHP Fatal error:  Call to a member function prepare() on a non-object in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 305
-[30-Sep-2014 21:16:09 America/Chicago] PHP Fatal error:  Class 'Forum\Post' not found in /home2/deepgame/public_html/dustinhibbard/forum/views/post.tpl.php on line 35
-[30-Sep-2014 20:27:46 America/Denver] PHP Parse error:  syntax error, unexpected 'var_dump' (T_STRING) in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 46
-[30-Sep-2014 20:28:02 America/Denver] PHP Parse error:  syntax error, unexpected 'var_dump' (T_STRING) in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 46
-[30-Sep-2014 20:28:12 America/Denver] PHP Parse error:  syntax error, unexpected 'var_dump' (T_STRING) in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 46
-[30-Sep-2014 20:28:41 America/Denver] PHP Parse error:  syntax error, unexpected ''order'' (T_CONSTANT_ENCAPSED_STRING), expecting '(' in /home2/deepgame/public_html/dustinhibbard/forum/vendor/Forum/PostService.php on line 53

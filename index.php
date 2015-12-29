@@ -1,214 +1,170 @@
 <?php
-/**
- * The front (main) forum page.
- *
- * Gets the 50 newest threads, then display them
- */
-
- 
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Forum\PostService;
 
-// Include config and libraries
-require('config.php');
+$configuration = [
+    'settings' => [
+        'displayErrorDetails' => true,
+    ]
+];
 
-$app = new \Slim\Slim();
+require 'vendor/autoload.php';
+require 'config.php';
 
-$app->get('/', function() use ($app) {
-	
-	global $FORUM;
-	
-	$afterPost = $app->request->get('after');
+$container = new \Slim\Container($configuration);
+$container['cookie'] = function(Slim\Container $c){
+    /** @var Slim\Http\Request $request */
+    $request = $c->get('request');
+    return new \Slim\Http\Cookies($request->getCookieParams());
+};
+$app = new \Slim\App($container);
 
- 	$posts  = PostService::getPosts($afterPost);
-	foreach($posts as $key => $post) {
-		$posts[$key] = PostService::generateTree($post);
-	}
-	
-	// Pass data to templates
-	$tpl = new Savant3();
-	$tpl->forum = $FORUM;
-	$tpl->title = "Home";
-	$tpl->posts = $posts;
-	
-	$tpl->display('views/home.tpl.php');
-	
-});
+$app->get('/', function(Request $request, Response $response, $args) {
 
-$app->get('/view/:id', function($id) use ($app) {
-	
-	global $FORUM;
+    global $FORUM;
 
-	$post  = PostService::getPostByID($id);
-	
-	if($post === null) {
-		$app->redirect($app->request->getRootUri());
-	}
-	
-	// Find the root post of this thread (for the thread display)
-	$root = $post->find_root();
-	
-	// Get this post's images
-	$images = $post->getImages();
-	
-	// Process message
-	$message = youtube_embeds($post->post);
-	$message = linkify($message);
-	$message = nl2br($message);
-	
-	// Used stored name if it was stored
-	$name = $app->getCookie('author');
-	
-	// Pass data to templates
-	$tpl = new Savant3();
-	$tpl->title = "View";
-	$tpl->forum = $FORUM;
-	$tpl->post = $post;
-	$tpl->root = $root;
-	$tpl->name = $name;
-	$tpl->images = $images;
-	$tpl->message = $message;
-	
-	$tpl->display('views/post.tpl.php');
+    $afterPost = $request->getParam('after');
 
-	
-});
+    $posts  = PostService::getPosts($afterPost);
+    foreach($posts as $key => $post) {
+        $posts[$key] = PostService::generateTree($post);
+    }
 
-$app->get('/new', function() use ($app) {
-	
-	global $FORUM;
-	
-	// Used stored name if it was stored
-	$name = $app->getCookie('author');
-	
-	// Pass data to templates
-	$tpl = new Savant3();
-	$tpl->title = "New Post";
-	$tpl->forum = $FORUM;
-	$tpl->name = $name;
-	
-	$tpl->display('views/new.tpl.php');
+    // Pass data to templates
+    $tpl = new Savant3();
+    $tpl->forum = $FORUM;
+    $tpl->title = "Home";
+    $tpl->posts = $posts;
 
-	
-});
-
-$app->post('/new', function() use ($app) {
-	
-	// Spam check
-	if(strlen($app->request->post('author')) > 0) {
-		$app->response->setStatus(403);
-		$app->response->setBody('Forbidden');
-		return;
-	}
-	
-	// Get edit token.  Set it if it doesn't exist.
-	$token = $app->getCookie('token');
-	
-	if($token === null) {
-		$token = uniqid();
-		$app->setCookie('token', $token, '1 year');
-	}
-	
-	$ip = $app->environment['REMOTE_ADDR'];
-	
-	// Set the author name
-	$app->setCookie('author', $app->request->post('pumpkin'), '1 year');
-	
-	$id  = PostService::createPost($app->request->post(), $token, $ip);
-	PostService::processImages($id);
-	
-	if($id !== null) {
-		$app->redirect($app->request->getRootUri() . "/view/$id");
-	} else {
-		$app->response->setStatus(500);
-		$app->response->setBody('Error creating post');
-		return;
-	}
+    $tpl->display('views/home.tpl.php');
 
 });
 
-$app->get('/edit/:id', function($id) use ($app) {
-	
-	global $FORUM;
+$app->get('/view/{id}', function(Request $request, Response $response, $args) {
+    /** @var $this \Slim\Container */
 
-	$post  = PostService::getPostByID($id);
-	
-	if($post === null) {
-		$app->redirect($app->request->getRootUri());
-	}
-	
-	$token = $app->getCookie('token');
-	
-	if(!isset($token) || $token !== $post->token) {
-		$app->response->setStatus(403);
-		$app->response->setBody('Forbidden');
-		return;
-	}
-	
-	// Pass data to templates
-	$tpl = new Savant3();
-	$tpl->title = "Edit Post";
-	$tpl->forum = $FORUM;
-	$tpl->post = $post;
-	
-	$tpl->display('views/edit.tpl.php');
-	
-});
+    /** @var \Slim\Http\Cookies $cookies */
+    $cookies = $this->get('cookie');
 
-$app->post('/edit/:id', function($id) use ($app) {
-	
-	$action = $app->request->post('action');
-	
-	// Spam check
-	if(strlen($app->request->post('author')) > 0) {
-		$app->response->setStatus(403);
-		$app->response->setBody('Forbidden');
-		return;
-	}
-	
-	// Get edit token.  Set it if it doesn't exist.
-	$token = $app->getCookie('token');
-	
-	if($token === null) {
-		die("No token set");
-	}
-	
-	$ip = $app->environment['REMOTE_ADDR'];
-	
-	if($action == 'Update') {
-		
-		$success  = PostService::editPost($app->request->post(), $token, $ip);
-		
-		if($success) {
-			$app->redirect($app->request->getRootUri() . "/view/$id");
-		} else {
-			$app->response->setStatus(500);
-			$app->response->setBody('Error updating post');
-			return;
-		}
-	} elseif ($action == 'Delete') {
-		
-		PostService::deletePost($app->request->post(), $token);
-		$app->redirect($app->request->getRootUri());
-		
-		
-	} else {
-		$app->response->setStatus(500);
-		$app->response->setBody('Undefined action');
-	}
+    global $FORUM;
+    $id = intval($args['id']);
+
+    $post  = PostService::getPostByID($id);
+
+    if($post === null) {
+        return $response->withRedirect(WEB_BASE_DIR);
+    }
+
+    // Find the root post of this thread (for the thread display)
+    $root = $post->find_root();
+
+    // Get this post's images
+    $images = $post->getImages();
+
+    // Process message
+    $message = youtube_embeds($post->post);
+    $message = linkify($message);
+    $message = nl2br($message);
+
+    $cookies = $request->getCookieParams();
+    $name = null;
+
+    // Used stored name if it was stored
+    if(array_key_exists('author', $cookies)) {
+        $name = $cookies['author'];
+    }
+
+    // Pass data to templates
+    $tpl = new Savant3();
+    $tpl->title = "View";
+    $tpl->forum = $FORUM;
+    $tpl->post = $post;
+    $tpl->root = $root;
+    $tpl->name = $name;
+    $tpl->images = $images;
+    $tpl->message = $message;
+
+    $tpl->display('views/post.tpl.php');
+
 
 });
 
-$app->get('/test', function() use ($app) {
+$app->get('/new', function(Request $request, Response $response, $args) {
+    /** @var $this \Slim\Container */
 
-	global $FORUM;
+    /** @var \Slim\Http\Cookies $cookies */
+    $cookies = $this->get('cookie');
 
-	// Pass data to templates
-	$tpl = new Savant3();
-	$tpl->title = "Testing Page";
-	$tpl->forum = $FORUM;
 
-	$tpl->display('views/test.tpl.php');
+    global $FORUM;
+
+    $name = null;
+
+    $name = $cookies->get('author');
+
+    var_dump($name);
+
+    var_dump($cookies);exit;
+
+    // Pass data to templates
+    $tpl = new Savant3();
+    $tpl->title = "New Post";
+    $tpl->forum = $FORUM;
+    $tpl->name = $name;
+
+    $tpl->display('views/new.tpl.php');
+});
+
+$app->post('/new', function(Request $request, Response $response, $args) {
+
+    /** @var $this \Slim\Container */
+
+    /** @var \Slim\Http\Cookies $cookies */
+    $cookies = $this->get('cookie');
+
+    /** @var $this \Slim\App $cookies */
+
+    // Spam check
+    if(strlen($request->getParam('author')) > 0) {
+        $response->getBody()->write('Forbidden');
+        return $response->withStatus(403);
+    }
+
+    // Get edit token.  Set it if it doesn't exist.
+    $token = $cookies->get('token');
+    if($token === null) {
+        $token = uniqid();
+        $cookies->set('token', [
+            'value' => $token,
+            'expires' => '1 year'
+        ]);
+    }
+
+
+    $ip = $request->getServerParams()['REMOTE_ADDR'];
+
+    // Set the author name
+    $cookies->set('author', [
+        'value' => $request->getParam('pumpkin'),
+        'expires' => '1 year'
+    ]);
+
+    $id  = PostService::createPost($request->getParsedBody(), $token, $ip);
+    PostService::processImages($id);
+
+    if($id !== null) {
+        return $response->withRedirect(WEB_BASE_DIR . "/view/$id")
+            ->withHeader('Set-Cookie', $cookies->toHeaders());
+    } else {
+        $response->getBody()->write('Error creating post');
+        return $response->withStatus(500);
+    }
 
 });
+
 
 $app->run();
+
+
+

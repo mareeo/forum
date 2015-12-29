@@ -26,9 +26,34 @@ $(function() {
 		if (images == 1) {
 			$("#addImage").html("Add another image");
 		}
+
+
 		
 		
 		
 	});
+
+	if(localStorage.getItem('theme') == null) {
+		localStorage.setItem('theme', 'dark');
+	}
+
+	if(localStorage.getItem('theme') == 'light') {
+		$('#stylesheet').attr('href', '/forum/css/style-invert.css');
+	}
+
+	$("#changeTheme").click(function() {
+		if(localStorage.getItem('theme') == 'dark') {
+			localStorage.setItem('theme', 'light');
+			$('#stylesheet').attr('href', '/forum/css/style-invert.css');
+		} else {
+			localStorage.setItem('theme', 'dark');
+			$('#stylesheet').attr('href', '/forum/css/style.css');
+		}
+
+	})
+
+
 	
 });
+
+

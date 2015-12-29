@@ -5,9 +5,9 @@ div.post {
 
 div.thread {
     margin: 10px 0px;
-    border: 1px solid black;
+    border: 1px solid #ffffff;
     word-wrap: break-word;
-    background-color: black;
+    background-color: #ffffff;
     padding: 2px 0px;
 }
 
@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a:link, a:visited {
-    color: #6FAC1A;
+    color: #9053e5;
     text-decoration: none;
 }
 
@@ -57,11 +57,11 @@ span.root {
 }
 
 span.author {
-    color: #bc3e1c;
+    color: #43c1e3;
 }
 
 span.timestamp {
-    color: #ffffff;
+    color: #000000;
 }
 
 input[type="text"], input[type="file"], textarea {

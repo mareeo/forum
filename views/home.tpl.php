@@ -16,6 +16,7 @@
       <?php $lastPost = end($this->posts);?>
       <a href="?after=<?=$lastPost->id?>">Next Page</a>
       <?php $this->display('views/footer.tpl.php'); ?>
+      <div class="button" id="changeTheme" style="font-size:10px">Change Theme</button>
    </div>
 </div>
 

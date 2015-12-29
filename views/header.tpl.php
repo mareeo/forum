@@ -14,7 +14,7 @@ function displayPost($post) {
    $numImages = count($post->images);
    
    // Print the link to view the post
-   echo "<a href=\"" . WEB_BASE_DIR . "view/$post->id\">$post->subject</a> ";
+   echo "<a href=\"".WEB_BASE_DIR."view/$post->id\">$post->subject</a> ";
 
    echo '<span class="postDetails">';
    
@@ -83,7 +83,7 @@ function recursiveDisplay($root) {
 
    <title>4um : <?=$this->title?></title>
 
-   <link rel="icon" type="image/png" href="<?=WEB_BASE_DIR?>favicon.png" />
+   <link rel="icon" type="image/png" href="favicon.png" />
 
    <meta name="description" content="teh 4um">
 
@@ -95,16 +95,15 @@ function recursiveDisplay($root) {
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-   <link rel="stylesheet" href="/forum/css/normalize.css">
-   <link rel="stylesheet" href="/forum/css/skeleton.css">
+   <link rel="stylesheet" href="<?=WEB_BASE_DIR?>css/normalize.css">
+   <link rel="stylesheet" href="<?=WEB_BASE_DIR?>css/skeleton.css">
 
 
 
 
+   <link id="stylesheet" rel="stylesheet" href="<?=WEB_BASE_DIR?>css/style.css">
 
-   <link rel="stylesheet" href="/forum/css/style-invert.css">
-
-   <link rel="stylesheet" href="/forum/css/buttons.css">
+   <link rel="stylesheet" href="<?=WEB_BASE_DIR?>css/buttons.css">
 
    <link href='http://fonts.googleapis.com/css?family=Open+Sans:700italic,700,400italic,400' rel='stylesheet' type='text/css'>
 

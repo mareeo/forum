@@ -69,7 +69,7 @@ class PostService {
     /**
      * Create a new post
      *
-     * @param Array $request The POST data for the request.
+     * @param array $request The POST data for the request.
      * @param String $token The user's edit token.
      * @param String $ip The user's IP address.
      * @return int The ID of the newly created post
@@ -139,6 +139,8 @@ class PostService {
         } else {
             $post->thread = '';
         }
+
+//        var_dump($post);exit;
         
         // Save it (insert in to database)
         $post->save();
