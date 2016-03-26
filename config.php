@@ -39,6 +39,6 @@ $pdo = new PDO('mysql:host=localhost;dbname=deepgame_forum;charset=UTF8', "root"
 session_start();
 
 $FORUM = new stdClass;
-$FORUM->version = 0.9;
-$FORUM->date = '12/29/2012';
+$FORUM->version = 0.91;
+$FORUM->date = '3/26/2016';
 $FORUM->author = "Dustin Hibbard <dustinhibbard@gmail.com>";
