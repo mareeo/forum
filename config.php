@@ -34,11 +34,11 @@ define('THUMB_DIR',         IMG_DIR . 't/');
 define('FS_IMG_DIR',   FS_BASE_DIR . 'i/');
 define('FS_THUMB_DIR',  FS_IMG_DIR . 't/');
 
-$pdo = new PDO('mysql:host=localhost;dbname=deepgame_forum;charset=UTF8', "DBUSERNAME", "DBPASSWORD");
+$pdo = new PDO('mysql:host=localhost;dbname=deepgame_forum;charset=UTF8', "root", "root");
 
 session_start();
 
 $FORUM = new stdClass;
-$FORUM->version = 0.8;
-$FORUM->date = '9/30/2014';
+$FORUM->version = 0.9;
+$FORUM->date = '12/29/2012';
 $FORUM->author = "Dustin Hibbard <dustinhibbard@gmail.com>";

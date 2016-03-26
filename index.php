@@ -37,8 +37,9 @@ $app->get('/', function(Request $request, Response $response, $args) {
     $tpl->title = "Home";
     $tpl->posts = $posts;
 
-    $tpl->display('views/home.tpl.php');
 
+    $response->getBody()->write($tpl->getOutput('views/home.tpl.php'));
+    return $response;
 });
 
 $app->get('/view/{id}', function(Request $request, Response $response, $args) {
@@ -85,9 +86,8 @@ $app->get('/view/{id}', function(Request $request, Response $response, $args) {
     $tpl->images = $images;
     $tpl->message = $message;
 
-    $tpl->display('views/post.tpl.php');
-
-
+    $response->getBody()->write($tpl->getOutput('views/post.tpl.php'));
+    return $response;
 });
 
 $app->get('/new', function(Request $request, Response $response, $args) {
@@ -103,17 +103,14 @@ $app->get('/new', function(Request $request, Response $response, $args) {
 
     $name = $cookies->get('author');
 
-    var_dump($name);
-
-    var_dump($cookies);exit;
-
     // Pass data to templates
     $tpl = new Savant3();
     $tpl->title = "New Post";
     $tpl->forum = $FORUM;
     $tpl->name = $name;
 
-    $tpl->display('views/new.tpl.php');
+    $response->getBody()->write($tpl->getOutput('views/new.tpl.php'));
+    return $response;
 });
 
 $app->post('/new', function(Request $request, Response $response, $args) {
@@ -163,8 +160,94 @@ $app->post('/new', function(Request $request, Response $response, $args) {
 
 });
 
+$app->get('/edit/{id}', function(Request $request, Response $response, $args) {
+    /** @var $this \Slim\Container */
+
+    /** @var \Slim\Http\Cookies $cookies */
+    $cookies = $this->get('cookie');
+
+    global $FORUM;
+    $id = intval($args['id']);
+
+    /** @var Models\Post $post */
+    $post  = PostService::getPostByID($id);
+
+    if($post === null) {
+        return $response->withRedirect(WEB_BASE_DIR);
+    }
+
+    $token = $cookies->get('token');
+
+    if(!isset($token) || $token !== $post->token) {
+        $response->getBody()->write('Forbidden');
+        return $response->withStatus(403);
+    }
+
+    // Pass data to templates
+    $tpl = new Savant3();
+    $tpl->title = "Edit Post";
+    $tpl->forum = $FORUM;
+    $tpl->post = $post;
+
+    $response->getBody()->write($tpl->getOutput('views/edit.tpl.php'));
+    return $response;
+});
+
+$app->post('/edit/{id}', function(Request $request, Response $response, $args) {
+
+    /** @var $this \Slim\Container */
+
+    /** @var \Slim\Http\Cookies $cookies */
+    $cookies = $this->get('cookie');
+
+    $action = $request->getparam('action');
+
+    $id = intval($args['id']);
+
+    // Spam check
+    if(strlen($request->getParam('author')) > 0) {
+        $response->getBody()->write('Forbidden');
+        return $response->withStatus(403);
+    }
+
+    $token = $cookies->get('token');
+
+    if($token === null) {
+        $response->getBody()->write('Forbidden - No token cookie');
+        return $response->withStatus(403);
+    }
+
+    $ip = $request->getServerParams()['REMOTE_ADDR'];
+
+    /** @var \Slim\Http\Uri $uri */
+    $uri = $this->request->getUri();
+
+    $basePath = $uri->getBasePath();
+
+
+    if($action == 'Update') {
+        $success  = PostService::editPost($request->getParsedBody(), $token, $ip);
+
+        if($success) {
+            return $response->withRedirect($basePath . "/view/$id");
+        } else {
+            $response->getBody()->write("Error updating post");
+            return $response->withStatus(500);
+        }
+    } elseif ($action == 'Delete') {
+
+        PostService::deletePost($request->getParsedBody(), $token);
+        return $response->withRedirect($basePath);
+
+
+    } else {
+        $response->getBody()->write("Undefined action");
+        return $response->withStatus(500);
+    }
+
+
+
+});
 
 $app->run();
-
-
 

@@ -229,7 +229,7 @@ class PostService {
     
     /**
      * Edit an already existing post
-     * @param  Array  $request Array of POST data
+     * @param  array  $request Array of POST data
      * @param  String $token   The editing token of the user
      * @param  String $ip      The IP address of the user
      * @return bool            True on success, false on failure
@@ -277,7 +277,7 @@ class PostService {
     
     /**
      * Delete a post
-     * @param  Array $request  Array of POST data
+     * @param  array $request  Array of POST data
      * @param  String $token   The editing token of the user
      * @return bool            True on success, false on failure
      */
