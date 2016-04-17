@@ -1,7 +1,9 @@
 <?php
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Forum\PostService;
+use Forum\Forum\PostService;
+use League\CommonMark\CommonMarkConverter;
+use League\Plates\Engine;
 
 $configuration = [
     'settings' => [
@@ -31,14 +33,15 @@ $app->get('/', function(Request $request, Response $response, $args) {
         $posts[$key] = PostService::generateTree($post);
     }
 
-    // Pass data to templates
-    $tpl = new Savant3();
-    $tpl->forum = $FORUM;
-    $tpl->title = "Home";
-    $tpl->posts = $posts;
+    $templates = new Engine("templates");
+    $output = $templates->render('home.plates', [
+        'forum' => $FORUM,
+        'title' => 'Home',
+        'posts' => $posts
+    ]);
 
-
-    $response->getBody()->write($tpl->getOutput('views/home.tpl.php'));
+    $response->getBody()->write($output);
+//    $response->getBody()->write($tpl->getOutput('views/home.tpl.php'));
     return $response;
 });
 
@@ -63,30 +66,30 @@ $app->get('/view/{id}', function(Request $request, Response $response, $args) {
     // Get this post's images
     $images = $post->getImages();
 
-    // Process message
-    $message = youtube_embeds($post->post);
-    $message = linkify($message);
-    $message = nl2br($message);
+    $converter = new CommonMarkConverter();
 
-    $cookies = $request->getCookieParams();
+    // Process message
+    $message = $post->post;
+    $message = \Forum\Forum\Util::youtube_embeds($message);
+    $message = $converter->convertToHtml($message);
+    $message = \Forum\Forum\Util::linkify($message);
     $name = null;
 
     // Used stored name if it was stored
-    if(array_key_exists('author', $cookies)) {
-        $name = $cookies['author'];
-    }
+    $name = $cookies->get('author');
 
-    // Pass data to templates
-    $tpl = new Savant3();
-    $tpl->title = "View";
-    $tpl->forum = $FORUM;
-    $tpl->post = $post;
-    $tpl->root = $root;
-    $tpl->name = $name;
-    $tpl->images = $images;
-    $tpl->message = $message;
+    $templates = new Engine("templates");
+    $output = $templates->render('post.plates', [
+        'forum' => $FORUM,
+        'title' => 'View',
+        'post' => $post,
+        'root' => $root,
+        'name' => $name,
+        'images' => $images,
+        'message' => $message
+    ]);
 
-    $response->getBody()->write($tpl->getOutput('views/post.tpl.php'));
+    $response->getBody()->write($output);
     return $response;
 });
 
@@ -103,13 +106,14 @@ $app->get('/new', function(Request $request, Response $response, $args) {
 
     $name = $cookies->get('author');
 
-    // Pass data to templates
-    $tpl = new Savant3();
-    $tpl->title = "New Post";
-    $tpl->forum = $FORUM;
-    $tpl->name = $name;
+    $templates = new Engine("templates");
+    $output = $templates->render('new.plates', [
+        'title' => 'New Post',
+        'forum' => $FORUM,
+        'name' => $name
+    ]);
 
-    $response->getBody()->write($tpl->getOutput('views/new.tpl.php'));
+    $response->getBody()->write($output);
     return $response;
 });
 
@@ -183,13 +187,14 @@ $app->get('/edit/{id}', function(Request $request, Response $response, $args) {
         return $response->withStatus(403);
     }
 
-    // Pass data to templates
-    $tpl = new Savant3();
-    $tpl->title = "Edit Post";
-    $tpl->forum = $FORUM;
-    $tpl->post = $post;
+    $templates = new Engine("templates");
+    $output = $templates->render('edit.plates', [
+        'forum' => $FORUM,
+        'title' => 'Edit Post',
+        'post' => $post,
+    ]);
 
-    $response->getBody()->write($tpl->getOutput('views/edit.tpl.php'));
+    $response->getBody()->write($output);
     return $response;
 });
 
@@ -250,4 +255,3 @@ $app->post('/edit/{id}', function(Request $request, Response $response, $args) {
 });
 
 $app->run();
-

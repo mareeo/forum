@@ -14,9 +14,9 @@ $(function() {
 			$("#addImage").remove();
 		}
 		
-		var div = $("<div></div>");
-		div.addClass('image-picker')
-		var picker = $("<input></input>");
+		var div = $("<div>");
+		div.addClass('image-picker');
+		var picker = $("<input>");
 		picker.attr('type', 'file');
 		picker.attr('name', 'image[]');
 		div.append(picker);
@@ -26,12 +26,21 @@ $(function() {
 		if (images == 1) {
 			$("#addImage").html("Add another image");
 		}
-
-
-		
-		
-		
 	});
+
+	var reader = new commonmark.Parser();
+	var writer = new commonmark.HtmlRenderer();
+
+	var renderPreview = function(event) {
+		var value = $(event.target).val();
+		var parsed = reader.parse(value);
+		var result = writer.render(parsed);
+		$('#messagePreview').html(result);
+	};
+
+	var debounced = $.debounce(500, renderPreview);
+
+	$("textarea[name='message']").keyup(debounced);
 
 	if(localStorage.getItem('theme') == null) {
 		localStorage.setItem('theme', 'dark');
