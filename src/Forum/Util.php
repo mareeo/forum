@@ -10,30 +10,29 @@ class Util
     public static function youtube_embeds($message) {
 
         preg_match_all(
-            '/\nhttps?:\/\/www\.youtube\.com\/watch\?v=([A-Za-z0-9\-_]+)\S*/',
+            '/(\n|<p>)https?:\/\/www\.youtube\.com\/watch\?v=([A-Za-z0-9\-_]+)\S*(\n|<\/p>)?/',
             $message,
             $matches
         );
 
         $numVideos = count($matches[0]);
 
-
         for($i=0; $i < $numVideos; $i++ ) {
-            $message = str_replace($matches[0][$i], '<div class="youtube"><iframe width="100%" height="315" src="//www.youtube.com/embed/'.$matches[1][$i].'?rel=0" frameborder="0" allowfullscreen></iframe>'.$matches[0][$i].'</div>', $message);
+            $url = str_replace(['<p>', '</p>',"\n"], '',$matches[0][$i]);
+            $message = str_replace($matches[0][$i], '<div class="youtube"><iframe width="100%" height="315" src="//www.youtube.com/embed/'.$matches[2][$i].'?rel=0" frameborder="0" allowfullscreen></iframe>'.$url.'</div>', $message);
         }
 
-
         preg_match_all(
-            '/https?:\/\/youtu\.be\/([A-Za-z0-9\-_]+)\S*/',
+            '/(\n|<p>)https?:\/\/youtu\.be\/([A-Za-z0-9\-_]+)\S*(\n|<\/p>)?/',
             $message,
             $matches
         );
 
         $numVideos = count($matches[0]);
 
-
         for($i=0; $i < $numVideos; $i++ ) {
-            $message = str_replace($matches[0][$i], '<div class="youtube"><iframe width="560" height="315" src="//www.youtube.com/embed/'.$matches[1][$i].'?rel=0" frameborder="0" allowfullscreen></iframe>'.$matches[0][$i].'</div>', $message);
+            $url = str_replace(['<p>', '</p>',"\n"], '',$matches[0][$i]);
+            $message = str_replace($matches[0][$i], '<div class="youtube"><iframe width="100%" height="315" src="//www.youtube.com/embed/'.$matches[2][$i].'?rel=0" frameborder="0" allowfullscreen></iframe>'.$url.'</div>', $message);
         }
 
         return $message;
