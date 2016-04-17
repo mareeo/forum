@@ -117,4 +117,62 @@ span.postDetails {
    font-size: 12px;
 }
 
+div.formatDesc {
+    font-size: 10px;
+    margin-bottom: 5px;
+}
 
+#messagePreview {
+    background-color: rgb(64, 64, 64);
+    color: #FFFFFF;
+    border: 1px solid rgb(191, 191, 191);
+    padding: 5px;
+}
+
+.message h1,
+#messagePreview h1 {
+    font-size: 2em;
+}
+
+.message h2,
+#messagePreview h2 {
+    font-size: 1.8em;
+}
+
+.message h3,
+#messagePreview h3 {
+    font-size: 1.6em;
+}
+
+.message h4,
+#messagePreview h4 {
+    font-size: 1.4em;
+}
+
+.message h5,
+#messagePreview h5 {
+    font-size: 1.2em;
+}
+
+.message h6,
+#messagePreview h6 {
+    font-size: 1.1em;
+}
+
+.message code,
+#messagePreview code {
+    background: black;
+    border: none;
+}
+
+.message blockquote,
+#messagePreview blockquote {
+    border-left: 5px solid #BC3E1C;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+}
+
+.message blockquote p,
+#messagePreview blockquote p {
+    margin: 0;
+}

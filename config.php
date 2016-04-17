@@ -22,7 +22,7 @@ ActiveRecord\Config::initialize(function($cfg)
 date_default_timezone_set('America/Chicago');
 mb_internal_encoding('UTF-8');
 
-define('WEB_BASE_DIR',      '/dustinhibbard.com/forum-redo/');
+define('WEB_BASE_DIR',      '/dustinhibbard.com/forum/');
 define('FS_BASE_DIR',       __DIR__ . '/');
 define('THUMB_MAX_WIDTH',   200);
 define('THUMB_MAX_HEIGHT',  200);
@@ -37,6 +37,6 @@ $pdo = new PDO('mysql:host=localhost;dbname=deepgame_forum;charset=utf8mb4', "ro
 session_start();
 
 $FORUM = new stdClass;
-$FORUM->version = 0.91;
-$FORUM->date = '3/26/2016';
+$FORUM->version = 0.92;
+$FORUM->date = '4/17/2016';
 $FORUM->author = "Dustin Hibbard <dustinhibbard@gmail.com>";

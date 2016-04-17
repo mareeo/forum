@@ -25,6 +25,11 @@
       </div>
       <div class="eight columns">
          <textarea name="message" maxlength="20000" style="width: 100%; min-height: 200px"></textarea>
+         <div class="formatDesc">
+            Messages formatted using <a href="http://commonmark.org/help/" target="_blank">CommonMark</a>.
+            More examples <a href="https://www.reddit.com/r/reddit.com/comments/6ewgt/reddit_markdown_primer_or_how_do_you_do_all_that/c03nik6" target="_blank">here</a>.
+            Youtube links on a separate line will be replaced with video embeds.
+         </div>
       </div>
    </div>
 

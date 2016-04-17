@@ -66,13 +66,16 @@ $app->get('/view/{id}', function(Request $request, Response $response, $args) {
     // Get this post's images
     $images = $post->getImages();
 
-    $converter = new CommonMarkConverter();
+    $converter = new CommonMarkConverter([
+        'safe' => true,
+    ]);
 
     // Process message
     $message = $post->post;
-    $message = \Forum\Forum\Util::youtube_embeds($message);
     $message = $converter->convertToHtml($message);
+    $message = \Forum\Forum\Util::youtube_embeds($message);
     $message = \Forum\Forum\Util::linkify($message);
+
     $name = null;
 
     // Used stored name if it was stored
@@ -155,7 +158,7 @@ $app->post('/new', function(Request $request, Response $response, $args) {
     PostService::processImages($id);
 
     if($id !== null) {
-        return $response->withRedirect(WEB_BASE_DIR . "/view/$id")
+        return $response->withRedirect(WEB_BASE_DIR . "view/$id")
             ->withHeader('Set-Cookie', $cookies->toHeaders());
     } else {
         $response->getBody()->write('Error creating post');
@@ -227,14 +230,11 @@ $app->post('/edit/{id}', function(Request $request, Response $response, $args) {
     /** @var \Slim\Http\Uri $uri */
     $uri = $this->request->getUri();
 
-    $basePath = $uri->getBasePath();
-
-
     if($action == 'Update') {
         $success  = PostService::editPost($request->getParsedBody(), $token, $ip);
 
         if($success) {
-            return $response->withRedirect($basePath . "/view/$id");
+            return $response->withRedirect(WEB_BASE_DIR . "view/$id");
         } else {
             $response->getBody()->write("Error updating post");
             return $response->withStatus(500);
@@ -242,7 +242,7 @@ $app->post('/edit/{id}', function(Request $request, Response $response, $args) {
     } elseif ($action == 'Delete') {
 
         PostService::deletePost($request->getParsedBody(), $token);
-        return $response->withRedirect($basePath);
+        return $response->withRedirect(WEB_BASE_DIR);
 
 
     } else {

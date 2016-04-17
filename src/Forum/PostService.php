@@ -94,13 +94,9 @@ class PostService {
         if(strlen($author) == 0 || strlen($subject) == 0) {
            return null;
         }
-        
-        $allowedTags = '<b><i><u><s>';
-        
-        $message = htmlspecialchars($request['message']);
-        $message = substr($message, 0, 20000);
-        
-        
+
+        $message = substr($request['message'], 0, 20000);
+
         // Create the new post using the sanitized data
         $post = new Post();
         $post->author = $author;
@@ -139,8 +135,6 @@ class PostService {
         } else {
             $post->thread = '';
         }
-
-//        var_dump($post);exit;
         
         // Save it (insert in to database)
         $post->save();
@@ -215,7 +209,7 @@ class PostService {
               }
               
               // Create and save the new image record
-              $image = new \Models\Image();
+              $image = new Models\Image();
               $image->post_id = $post_id;
               $image->image = $filename;
               $image->thumbnail = $thumbfilename;
@@ -284,27 +278,33 @@ class PostService {
     public static function deletePost($request, $token) {
         
         $post = self::getPostByID($request['id']);
-        
+
         if($post === null)
             return false;
         
         if($post->token !== $token)
             return false;
-            
-        // Delete the content of the post
-        $post->author = '[deleted]';
-        $post->subject = '[deleted]';
-        $post->post = '';
-        $post->token = uniqid(); //Set the token to some junk value so it can't be edited again
-        $post->save();
-        
-        // Get images for this post
-        $images = $post->getImages();
-        
-        // Delete the images for this post
-        foreach($images as $image) {
-           $image->delete();
-        }
+
+       $children = $post->getChildren();
+
+       if(count($children) > 0) {
+           // Delete the content of the post
+           $post->author = '[deleted]';
+           $post->subject = '[deleted]';
+           $post->post = '';
+           $post->token = uniqid(); //Set the token to some junk value so it can't be edited again
+           $post->save();
+
+           // Get images for this post
+           $images = $post->getImages();
+
+           // Delete the images for this post
+           foreach($images as $image) {
+              $image->delete();
+           }
+       } else {
+          $post->delete();
+       }
 
         return true;
     }

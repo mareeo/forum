@@ -1,4 +1,7 @@
-<?php $this->layout('base.plates') ?>
+<?php $this->layout('base.plates', [
+   'forum' => $forum,
+   'title' => $title
+]); ?>
 <div class="container">
    <div class="twelve columns">
       <h3>Edit Post</h3>

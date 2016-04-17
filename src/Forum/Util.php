@@ -2,6 +2,7 @@
 
 namespace Forum\Forum;
 
+use DateTime;
 
 class Util
 {
@@ -143,6 +144,68 @@ class Util
         $ext = substr($str,$i+1,$l);
 
         return strtolower($ext);
+    }
+
+
+    public static function displayPost($post) {
+
+        if($post->id . "/" == $post->thread)
+            $root = true;
+        else
+            $root = false;
+        // If the post is a root post, we want to put it in a special span tag (for styling purposes)
+        if($root) {
+            echo "<span class='root'>";
+        }
+
+        $numImages = count($post->images);
+
+        // Print the link to view the post
+        echo "<a href=\"".WEB_BASE_DIR."view/$post->id\">$post->subject</a> ";
+
+        echo '<span class="postDetails">';
+
+        // Print (nt) if there is no message
+        if($post->post == '')
+            echo "(nt) ";
+
+        // Print (image) if there are images for this post
+        if($numImages == 1)
+            echo "(image) ";
+        elseif($numImages > 1)
+            echo "($numImages images) ";
+
+        $postDate = new DateTime($post->timestamp);
+        $postDate = $postDate->format('F jS g:i A');
+
+        // Print the author and the timestamp
+        echo "By <span class='author'>$post->author</span> on <span class='timestamp'>".$postDate."</span>\n";
+
+        // If a root post, close the span tag
+        if($root) {
+            echo "</span>";
+        }
+
+        echo '</span>';
+    }
+
+    public static function recursiveDisplay($root) {
+        // Get all children of this post
+
+        // Display this post
+        echo "<div class='post'>\n";
+        self::displayPost($root);
+
+        // For each child post, do this same process
+        foreach($root->children as $child) {
+            self::recursiveDisplay($child);
+        }
+        echo "</div>\n";
+    }
+
+    public static function displayTree(Models\Post $post) {
+        $tree = PostService::generateTree($post);
+        self::recursiveDisplay($tree);
     }
 
 }

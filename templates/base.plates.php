@@ -48,6 +48,5 @@
 </head>
 <body>
     <?php echo $this->section('content'); ?>
-    <div class="button" id="changeTheme" style="font-size:10px">Change Theme</div>
 </body>
 </html>
