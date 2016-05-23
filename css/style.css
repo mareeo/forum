@@ -64,7 +64,7 @@ span.timestamp {
     color: #ffffff;
 }
 
-input[type="text"], input[type="file"], textarea {
+input[type="text"], input[type="file"], input[type="password"], textarea {
     margin-bottom: 5px;
     background-color: #404040;
     color: white;

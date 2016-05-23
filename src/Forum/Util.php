@@ -207,4 +207,8 @@ class Util
         self::recursiveDisplay($tree);
     }
 
+    public static function isAdmin() {
+        return array_key_exists('admin', $_SESSION) && $_SESSION['admin'];
+    }
+
 }

@@ -37,11 +37,17 @@
          </div>
       <?php endif; ?>
    </div>
+   <div class="twelve columns" style="text-align: center;">
+      <a href="<?=WEB_BASE_DIR?>">Back to the main page</a>
+   </div>
+   <?php if($admin): ?>
+      <div class="twelve columns" style="text-align: right;">
 
-      <div class="twelve columns" style="text-align: center;">
-
-         <a href="<?=WEB_BASE_DIR?>">Back to the main page</a>
+         <form method="post" action="<?=WEB_BASE_DIR?>delete/<?=$post->id?>" onsubmit="return confirm('Do you really want to delete this post?');" >
+            <strong>Admin Tools:</strong> <input type="hidden" name="id" value="<?=$post->id?>" />
+            <input type="submit" name="action" value="Delete" class="button"/>
       </div>
+   <?php endif; ?>
    <div class="twelve columns">
       <h4>Thread</h4>
       <div class="thread">

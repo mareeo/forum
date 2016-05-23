@@ -12,6 +12,7 @@ $configuration = [
 ];
 
 require 'vendor/autoload.php';
+session_start();
 require 'config.php';
 
 $container = new \Slim\Container($configuration);
@@ -41,7 +42,6 @@ $app->get('/', function(Request $request, Response $response, $args) {
     ]);
 
     $response->getBody()->write($output);
-//    $response->getBody()->write($tpl->getOutput('views/home.tpl.php'));
     return $response;
 });
 
@@ -68,6 +68,7 @@ $app->get('/view/{id}', function(Request $request, Response $response, $args) {
 
     $converter = new CommonMarkConverter([
         'safe' => true,
+        'nestedLimit' => 15
     ]);
 
     // Process message
@@ -81,6 +82,8 @@ $app->get('/view/{id}', function(Request $request, Response $response, $args) {
     // Used stored name if it was stored
     $name = $cookies->get('author');
 
+    $isAdmin = \Forum\Forum\Util::isAdmin();
+
     $templates = new Engine("templates");
     $output = $templates->render('post.plates', [
         'forum' => $FORUM,
@@ -89,7 +92,8 @@ $app->get('/view/{id}', function(Request $request, Response $response, $args) {
         'root' => $root,
         'name' => $name,
         'images' => $images,
-        'message' => $message
+        'message' => $message,
+        'admin' => $isAdmin
     ]);
 
     $response->getBody()->write($output);
@@ -176,7 +180,7 @@ $app->get('/edit/{id}', function(Request $request, Response $response, $args) {
     global $FORUM;
     $id = intval($args['id']);
 
-    /** @var Models\Post $post */
+    /** @var \Forum\Forum\Models\Post $post */
     $post  = PostService::getPostByID($id);
 
     if($post === null) {
@@ -208,7 +212,7 @@ $app->post('/edit/{id}', function(Request $request, Response $response, $args) {
     /** @var \Slim\Http\Cookies $cookies */
     $cookies = $this->get('cookie');
 
-    $action = $request->getparam('action');
+    $action = $request->getParam('action');
 
     $id = intval($args['id']);
 
@@ -251,6 +255,60 @@ $app->post('/edit/{id}', function(Request $request, Response $response, $args) {
     }
 
 
+
+});
+
+$app->get('/admin', function(Request $request, Response $response, $args) {
+
+    global $FORUM;
+
+
+    $loggedOut = false;
+    if(\Forum\Forum\Util::isAdmin()) {
+        session_destroy();
+        $loggedOut = true;
+    }
+
+    $templates = new Engine("templates");
+
+    $output = $templates->render('admin.plates', [
+        'forum' => $FORUM,
+        'title' => 'Admin',
+        'loggedOut' => $loggedOut
+    ]);
+
+    $response->getBody()->write($output);
+    return $response;
+});
+
+$app->post('/admin', function(Request $request, Response $response, $args) {
+
+    $password = $request->getParam('password');
+
+    if($password === ADMIN_PASSWORD) {
+        $_SESSION['admin'] = true;
+        return $response->withRedirect(WEB_BASE_DIR);
+    } else {
+        return $response->withRedirect(WEB_BASE_DIR . "admin");
+    }
+});
+
+$app->post('/delete/{id}', function(Request $request, Response $response, $args) {
+
+    $id = intval($args['id']);
+
+    if(!\Forum\Forum\Util::isAdmin()) {
+        return $response->withRedirect(WEB_BASE_DIR);
+    }
+
+    $success = PostService::adminDeletePost($id);
+
+    if($success) {
+        return $response->withRedirect(WEB_BASE_DIR);
+    } else {
+        $response->getBody()->write('Error deleting post');
+        return $response->withStatus(500);
+    }
 
 });
 

@@ -78,13 +78,13 @@ class PostService {
         
         $author = trim($request['pumpkin']);
         $subject = trim($request['subject']);
-        
-        
-        
+
         // Sanitize input
         $author = str_replace("\n","",$author);
         $author = strip_tags($author);
         $author = substr($author, 0, 60);
+
+
 
         $subject = str_replace("\n","",$subject);
         $subject = htmlspecialchars($subject);
@@ -111,27 +111,6 @@ class PostService {
             
            $parent = Post::find($request['replyTo']);
            $post->thread = $parent->thread;
-           
-           
-           if($request['subject'] == '!delete') {
-              $parent->delete();
-              
-              // Redirect back to main page
-              header("Location: index.php");
-              exit;
-           }
-           
-           if($request['subject'] == '!remove') {
-              $parent->author = '[removed]';
-              $parent->subject = '[removed]';
-              $parent->post = '';
-              
-              $parent->save();
-              
-              // Redirect back to main page
-              header("Location: index.php");
-              exit;
-           }
         } else {
             $post->thread = '';
         }
@@ -305,6 +284,36 @@ class PostService {
        } else {
           $post->delete();
        }
+
+        return true;
+    }
+
+    public static function adminDeletePost($id) {
+        $post = self::getPostByID($id);
+
+        if($post === null)
+            return false;
+
+        $children = $post->getChildren();
+
+        if(count($children) > 0) {
+            // Delete the content of the post
+            $post->author = '[deleted]';
+            $post->subject = '[deleted]';
+            $post->post = '';
+            $post->token = uniqid(); //Set the token to some junk value so it can't be edited again
+            $post->save();
+
+            // Get images for this post
+            $images = $post->getImages();
+
+            // Delete the images for this post
+            foreach($images as $image) {
+                $image->delete();
+            }
+        } else {
+            $post->delete();
+        }
 
         return true;
     }
