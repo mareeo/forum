@@ -15,9 +15,11 @@ $this->layout('base.plates', [
             <?php \Forum\Forum\Util::recursiveDisplay($post) ?>
          </div>
       <?php endforeach; ?>
-      <?php $lastPost = end($posts);?>
+      <?php $lastPost = end($posts); ?>
+      <?php if($lastPost !== false): ?>
       <a href="?after=<?=$lastPost->id?>">Next Page</a>
       <br><br>
+      <?php endif; ?>
       <div class="button" id="changeTheme" style="font-size:10px">Change Theme</div>
    </div>
 

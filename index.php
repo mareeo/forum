@@ -12,8 +12,8 @@ $configuration = [
 ];
 
 require 'vendor/autoload.php';
-session_start();
 require 'config.php';
+session_start();
 
 $container = new \Slim\Container($configuration);
 $container['cookie'] = function(Slim\Container $c){
