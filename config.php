@@ -7,7 +7,7 @@ ini_set('error_log', 'error.log');
 date_default_timezone_set('America/Chicago');
 mb_internal_encoding('UTF-8');
 
-define('WEB_BASE_DIR',      '/dustinhibbard.com/forum/');
+define('WEB_BASE_DIR',      '/forum/');
 define('FS_BASE_DIR',       __DIR__ . '/');
 define('THUMB_MAX_WIDTH',   200);
 define('THUMB_MAX_HEIGHT',  200);
