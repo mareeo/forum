@@ -131,6 +131,14 @@ class PostService {
      * 
      */
     public static function processImages($post_id) {
+
+        if(!is_dir(FS_IMG_DIR)) {
+            mkdir(FS_IMG_DIR);
+        }
+
+        if(!is_dir(FS_THUMB_DIR)) {
+            mkdir(FS_THUMB_DIR);
+        }
         
         if(!array_key_exists("image", $_FILES))
             return;
