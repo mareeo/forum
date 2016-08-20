@@ -1,7 +1,9 @@
-<?php $this->layout('base.plates', [
+<?php
+$this->layout('base.plates', [
    'forum' => $forum,
    'title' => $title
-]); ?>
+]);
+?>
 
 <div class="container">
    <div class="twelve columns">
@@ -51,7 +53,7 @@
    <div class="twelve columns">
       <h4>Thread</h4>
       <div class="thread">
-         <?php \Forum\Forum\Util::displayTree($root); ?>
+         <?php \Forum\Forum\Util::recursiveDisplay($tree); ?>
       </div>
    </div>
    <div class="twelve columns">

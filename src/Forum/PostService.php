@@ -6,20 +6,29 @@ namespace Forum\Forum;
 
 use Forum\Forum\Models\Post;
 use DateTime;
+use PDO;
 
 
 /**
  * This class contains all the methods and logic for posts.
  */
 class PostService {
-    
+
+    /** @var PDO */
+    private $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     /**
      * Get an individual post by ID
      *
      * @param int $id ID of the post
      * @return Post|null The post if found, null if not.
      */
-    public static function getPostByID($id) {
+    public function getPostByID($id) {
         
         // Find post.  Redirect if not found or error.
         try {
@@ -35,7 +44,7 @@ class PostService {
      *`
      * @return Post[] An array of posts
      */
-    public static function getPosts($afterPost = null) {
+    public function getPosts($afterPost = null) {
         
         if($afterPost !== null) {
             $afterPost = (int)$afterPost;
@@ -74,7 +83,7 @@ class PostService {
      * @param String $ip The user's IP address.
      * @return int The ID of the newly created post
      */
-    public static function createPost($request, $token, $ip) {
+    public function createPost($request, $token, $ip) {
         
         $author = trim($request['pumpkin']);
         $subject = trim($request['subject']);
@@ -130,15 +139,7 @@ class PostService {
      * @param int $post_id The ID of the post for which we're processing images.
      * 
      */
-    public static function processImages($post_id) {
-
-        if(!is_dir(FS_IMG_DIR)) {
-            mkdir(FS_IMG_DIR);
-        }
-
-        if(!is_dir(FS_THUMB_DIR)) {
-            mkdir(FS_THUMB_DIR);
-        }
+    public function processImages($post_id) {
         
         if(!array_key_exists("image", $_FILES))
             return;
@@ -215,7 +216,7 @@ class PostService {
      * @param  String $ip      The IP address of the user
      * @return bool            True on success, false on failure
      */   
-    public static function editPost($request, $token, $ip) {
+    public function editPost($request, $token, $ip) {
         
         $post = self::getPostByID($request['id']);
         
@@ -262,7 +263,7 @@ class PostService {
      * @param  String $token   The editing token of the user
      * @return bool            True on success, false on failure
      */
-    public static function deletePost($request, $token) {
+    public function deletePost($request, $token) {
         
         $post = self::getPostByID($request['id']);
 
@@ -296,7 +297,7 @@ class PostService {
         return true;
     }
 
-    public static function adminDeletePost($id) {
+    public function adminDeletePost($id) {
         $post = self::getPostByID($id);
 
         if($post === null)
@@ -331,11 +332,9 @@ class PostService {
      * @param  Post $post The post to generate the tree for
      * @return \stdClass          The post's tree
      */
-    public static function generateTree(Post $post) {
+    public function generateTree(Post $post) {
         
-        global $pdo;
-        
-        $query = $pdo->prepare(
+        $query = $this->pdo->prepare(
         <<<SQL
         SELECT * FROM post WHERE thread LIKE ? ORDER BY id
 SQL
@@ -367,7 +366,7 @@ SQL
      * @param  \stdClass $root  The root post
      * @param  array $posts    An array of child posts not yet in the tree
      */
-    public static function treeThing($root, &$posts) {
+    public function treeThing($root, &$posts) {
         
         $children = [];
         
@@ -392,11 +391,9 @@ SQL
      * Get the images for a post and assign them to the ->images property.
      * @param  \stdClass $post The post for which to get images
      */
-    public static function getPostImages(&$post) {
+    public function getPostImages(&$post) {
         
-        global $pdo;
-        
-        $query = $pdo->prepare(<<<SQL
+        $query = $this->pdo->prepare(<<<SQL
         SELECT * FROM image WHERE post_id = ?
 SQL
         );

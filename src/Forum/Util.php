@@ -202,11 +202,6 @@ class Util
         echo "</div>\n";
     }
 
-    public static function displayTree(Models\Post $post) {
-        $tree = PostService::generateTree($post);
-        self::recursiveDisplay($tree);
-    }
-
     public static function isAdmin() {
         return array_key_exists('admin', $_SESSION) && $_SESSION['admin'];
     }
